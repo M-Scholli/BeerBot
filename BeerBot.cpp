@@ -217,7 +217,7 @@ get_key_long (uint8_t key_mask)
   return get_key_press (get_key_rpt (key_mask));
 }
 
-ISR(TIMER0_COMP_vect)
+ISR(TIMER0A_COMP_vect)
 {	//z�hlt die Zeit runter
   z++;
   if (z == 125)
@@ -255,10 +255,11 @@ TIMER0_interrupt_init (void) //konfiguriert die Uhr
 {
   z = 0; //ISR-Z�hler = 0
   TCNT0 = 0; //Anfangsz�hlerstand = 0
-  OCR0 = 124; //Z�hler z�hlt bis 124: 15625Hz/124 =126
-  TCCR0 = 0x0d; //CTC-Modus: Takt intern von 16 Mhz /1024 =15625Hz
+  OCR0A = 124; //Z�hler z�hlt bis 124: 15625Hz/124 =126
+  TCCR0A = 0x02; //CTC-Modus:
+  TCCR0B = 0x05; //Takt intern von 16 Mhz /1024 =15625Hz
 //Timer/Counter0 Compare Match Interrupt aktivieren:
-  TIMSK |= (1 << OCIE0);
+  TIMSK0 |= (1 << OCIE0A);
   sei();
 }
 
@@ -1114,8 +1115,8 @@ setup ()
   uart_init ((UART_BAUD_SELECT((BAUD), F_CPU)));
   KEY_DDR &= ~ALL_KEYS;                // konfigure key port for input
   //KEY_PORT |= ALL_KEYS;                // and turn on pull up resistors
-  TCCR2 = (1 << CS22) | (1 << CS20) | (1 << CS21);	// durch 1024 teilen
-  TIMSK = 1 << TOIE2;				// enable timer interrupt
+  TCCR2B = (1 << CS22) | (1 << CS20) | (1 << CS21);	// durch 1024 teilen
+  TIMSK2 = 1 << TOIE2;				// enable timer interrupt
   TIMER0_interrupt_init ();
   init ();
 #ifndef OW_ONE_BUS
